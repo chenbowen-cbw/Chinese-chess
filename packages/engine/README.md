@@ -34,16 +34,16 @@ game.result(); // => GameResult
 
 ## Public API (selected)
 
-| Export                                          | Purpose                                |
-| ----------------------------------------------- | -------------------------------------- |
-| `Color`, `PieceType`, `Move`, `makePiece`, `sq` | Core types & geometry                  |
-| `parseFen`, `toFen`, `initialPosition`          | FEN & setup                            |
-| `generateLegalMoves`, `generatePseudoLegalMoves`| Move generation                        |
-| `isInCheck`, `isCheckmate`, `isStalemate`       | Legality & terminal detection          |
-| `makeMove`, `unmakeMove`                         | Low-level mutation (for search)        |
-| `perft`, `perftDivide`                           | Move-generation verification           |
-| `Game`, `GameResult`, `resultFromPosition`       | High-level game state                  |
-| `moveToCoord`, `parseMoveCoord`                  | ICCS coordinate notation               |
+| Export                                           | Purpose                         |
+| ------------------------------------------------ | ------------------------------- |
+| `Color`, `PieceType`, `Move`, `makePiece`, `sq`  | Core types & geometry           |
+| `parseFen`, `toFen`, `initialPosition`           | FEN & setup                     |
+| `generateLegalMoves`, `generatePseudoLegalMoves` | Move generation                 |
+| `isInCheck`, `isCheckmate`, `isStalemate`        | Legality & terminal detection   |
+| `makeMove`, `unmakeMove`                         | Low-level mutation (for search) |
+| `perft`, `perftDivide`                           | Move-generation verification    |
+| `Game`, `GameResult`, `resultFromPosition`       | High-level game state           |
+| `moveToCoord`, `parseMoveCoord`                  | ICCS coordinate notation        |
 
 ## Tests
 

@@ -25,7 +25,7 @@ packages/
   ai/        # ⏳ Search + evaluation (depends on engine)
   shared/    # ⏳ Network protocol types, notation
 apps/
-  web/       # ⏳ Next.js front-end
+  web/       # ✅ Next.js front-end — playable local PVP
   server/    # ⏳ Serverless API routes for online play
 ```
 
@@ -40,11 +40,11 @@ pnpm format         # format with Prettier
 
 ## Roadmap
 
-| Phase | Scope                                                     | Status |
+| Phase | Scope                                                    | Status |
 | ----- | -------------------------------------------------------- | ------ |
 | 0     | Monorepo scaffolding, tooling, CI                        | ✅     |
 | 1     | Rules engine (moves, rules, check/mate, FEN, perft)      | ✅     |
-| 2     | Local PVP UI (board rendering + interaction)             | ⏳     |
+| 2     | Local PVP UI (board rendering + interaction)             | ✅     |
 | 3     | PVE AI (evaluation + search + Web Worker + difficulties) | ⏳     |
 | 4     | Online PVP (rooms, matchmaking, sync, reconnect)         | ⏳     |
 | 5     | Polish (animations, sound, themes, replay, mobile)       | ⏳     |

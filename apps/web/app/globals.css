@@ -1,0 +1,212 @@
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 32px 16px;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'PingFang SC',
+    'Microsoft YaHei',
+    sans-serif;
+  background: radial-gradient(circle at 50% 0%, #fbf3e0, #e6d2a8);
+  color: #2b2b2b;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.layout {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* --- Board --------------------------------------------------------------- */
+
+.board {
+  position: relative;
+  background: #e9c887;
+  border: 3px solid #5a3a1a;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  flex: none;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.grid .river {
+  fill: #5a3a1a;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  opacity: 0.7;
+}
+
+.point {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.piece {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 86%;
+  height: 86%;
+  border-radius: 50%;
+  font-family: 'PingFang SC', 'Microsoft YaHei', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1f2d3d;
+  background: radial-gradient(circle at 35% 30%, #fdf3da, #e8cf9b);
+  border: 2px solid currentColor;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  user-select: none;
+}
+
+.piece.red {
+  color: #b3261e;
+}
+
+.piece.black {
+  color: #1f2d3d;
+}
+
+.piece.capture {
+  box-shadow:
+    0 0 0 3px rgba(179, 38, 30, 0.85),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.piece.check {
+  box-shadow:
+    0 0 0 3px #e74c3c,
+    0 0 12px #e74c3c;
+}
+
+.dot {
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background: rgba(40, 40, 40, 0.4);
+}
+
+.mark {
+  position: absolute;
+  inset: 7%;
+  border-radius: 6px;
+}
+
+.mark.selected {
+  box-shadow: inset 0 0 0 3px #2e86de;
+}
+
+.mark.last {
+  background: rgba(46, 134, 222, 0.16);
+}
+
+/* --- Side panel ---------------------------------------------------------- */
+
+.panel {
+  width: 260px;
+  padding: 18px 20px;
+  background: #fffaf0;
+  border: 1px solid #e0cfa8;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.panel h1 {
+  margin: 0 0 2px;
+  font-size: 22px;
+}
+
+.panel .mode {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: #8a7a55;
+}
+
+.status {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+  background: #f1e7cf;
+}
+
+.status.over {
+  background: #ffe09a;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.controls button {
+  flex: 1;
+  padding: 9px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a3a18;
+  background: #f6e7c2;
+  border: 1px solid #caa86a;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background: #efd9a3;
+}
+
+.controls button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.history {
+  max-height: 360px;
+  margin: 0;
+  padding-left: 0;
+  overflow: auto;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  list-style: none;
+}
+
+.history li {
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.history li:nth-child(odd) {
+  background: #f6efde;
+}
+
+.history .num {
+  margin-right: 6px;
+  color: #9a8a64;
+}
