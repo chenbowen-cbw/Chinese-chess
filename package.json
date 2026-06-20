@@ -1,0 +1,22 @@
+{
+  "name": "xiangqi",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Chinese Chess (Xiangqi) — PVE (AI) and PVP (local + online), built with TypeScript.",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "build": "pnpm -r build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  }
+}
