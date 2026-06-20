@@ -2,29 +2,33 @@
 
 import { Board } from '@/components/Board';
 import { GamePanel } from '@/components/GamePanel';
-import { useXiangqiGame } from '@/lib/useXiangqiGame';
+import { useMatch } from '@/lib/useMatch';
 
 export default function Page() {
-  const game = useXiangqiGame();
+  const match = useMatch();
 
   return (
     <main className="layout">
       <Board
-        board={game.board}
-        selected={game.selected}
-        targets={game.targets}
-        lastMove={game.lastMove}
-        checkSquare={game.checkSquare}
-        onPointClick={game.onPointClick}
+        board={match.board}
+        selected={match.selected}
+        targets={match.targets}
+        lastMove={match.lastMove}
+        checkSquare={match.checkSquare}
+        disabled={match.thinking || !match.humanToMove}
+        onPointClick={match.onPointClick}
       />
       <GamePanel
-        turn={game.turn}
-        inCheck={game.inCheck}
-        result={game.result}
-        history={game.history}
-        canUndo={game.history.length > 0}
-        onReset={game.reset}
-        onUndo={game.undo}
+        config={match.config}
+        turn={match.turn}
+        inCheck={match.inCheck}
+        result={match.result}
+        thinking={match.thinking}
+        history={match.history}
+        canUndo={match.history.length > 0}
+        onNewGame={match.newGame}
+        onUndo={match.undo}
+        onDifficultyChange={match.setDifficulty}
       />
     </main>
   );

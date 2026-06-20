@@ -22,10 +22,10 @@ exact same code that runs on the client.
 ```
 packages/
   engine/    # ✅ Pure rules engine: board, move generation, rules, FEN, perft
-  ai/        # ⏳ Search + evaluation (depends on engine)
+  ai/        # ✅ Alpha-beta search + evaluation (depends on engine)
   shared/    # ⏳ Network protocol types, notation
 apps/
-  web/       # ✅ Next.js front-end — playable local PVP
+  web/       # ✅ Next.js front-end — local PVP + PVE (AI in a Web Worker)
   server/    # ⏳ Serverless API routes for online play
 ```
 
@@ -45,7 +45,7 @@ pnpm format         # format with Prettier
 | 0     | Monorepo scaffolding, tooling, CI                        | ✅     |
 | 1     | Rules engine (moves, rules, check/mate, FEN, perft)      | ✅     |
 | 2     | Local PVP UI (board rendering + interaction)             | ✅     |
-| 3     | PVE AI (evaluation + search + Web Worker + difficulties) | ⏳     |
+| 3     | PVE AI (evaluation + search + Web Worker + difficulties) | ✅     |
 | 4     | Online PVP (rooms, matchmaking, sync, reconnect)         | ⏳     |
 | 5     | Polish (animations, sound, themes, replay, mobile)       | ⏳     |
 | 6     | Deploy to Vercel                                         | ⏳     |

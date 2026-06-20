@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Compile the shared TypeScript engine package from source.
-  transpilePackages: ['@xiangqi/engine'],
+  // Compile the shared TypeScript workspace packages from source.
+  transpilePackages: ['@xiangqi/engine', '@xiangqi/ai'],
 };
 
 export default nextConfig;

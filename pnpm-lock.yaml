@@ -17,6 +17,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@xiangqi/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@xiangqi/engine':
         specifier: workspace:*
         version: link:../../packages/engine
@@ -42,6 +45,19 @@ importers:
       typescript:
         specifier: ^5.6.3
         version: 5.9.3
+
+  packages/ai:
+    dependencies:
+      '@xiangqi/engine':
+        specifier: workspace:*
+        version: link:../engine
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.0)
 
   packages/engine:
     devDependencies:

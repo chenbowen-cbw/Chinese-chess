@@ -12,6 +12,7 @@ interface BoardProps {
   targets: number[];
   lastMove: Move | null;
   checkSquare: number;
+  disabled?: boolean;
   onPointClick: (index: number) => void;
 }
 
@@ -21,6 +22,7 @@ export function Board({
   targets,
   lastMove,
   checkSquare,
+  disabled = false,
   onPointClick,
 }: BoardProps): ReactElement {
   const targetSet = new Set(targets);
@@ -45,6 +47,7 @@ export function Board({
         className="point"
         style={{ left: px(file) - size / 2, top: py(rank) - size / 2, width: size, height: size }}
         onClick={() => onPointClick(i)}
+        disabled={disabled}
         aria-label={`${file},${rank}`}
       >
         {isLast && <span className="mark last" />}
