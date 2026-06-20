@@ -29,6 +29,8 @@ export function useAiWorker(): (fen: string, difficulty: Difficulty) => Promise<
     return () => {
       worker.terminate();
       workerRef.current = null;
+      // Settle any in-flight requests so their promises never hang.
+      for (const resolve of pending.values()) resolve(null);
       pending.clear();
     };
   }, []);

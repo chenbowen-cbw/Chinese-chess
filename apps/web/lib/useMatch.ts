@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import {
   Color,
   EMPTY,
@@ -75,7 +75,7 @@ export function useMatch(): Match {
   if (gameRef.current === null) gameRef.current = new Game();
   const game = gameRef.current;
 
-  const [, bump] = useReducer((c: number) => c + 1, 0);
+  const [version, bump] = useReducer((c: number) => c + 1, 0);
   const [selected, setSelected] = useState<number | null>(null);
   const [config, setConfig] = useState<MatchConfig>(DEFAULT_CONFIG);
   const [thinking, setThinking] = useState(false);
@@ -83,7 +83,12 @@ export function useMatch(): Match {
   const [reviewPly, setReviewPly] = useState<number | null>(null);
 
   const requestMove = useAiWorker();
-  const aiBusyRef = useRef(false);
+  // Monotonic token: each AI request claims one; only the current token may
+  // apply a result. Bumped on supersession so stale resolutions are ignored.
+  const aiTokenRef = useRef(0);
+  // Latest sound preference, read at move time (not captured when the AI started).
+  const soundOnRef = useRef(soundOn);
+  soundOnRef.current = soundOn;
 
   // Live state.
   const turn = game.turn();
@@ -91,7 +96,9 @@ export function useMatch(): Match {
   const finished = result !== GameResult.Ongoing;
   const inCheck = game.inCheck();
   const history = game.history();
-  const notation = historyToChinese(history);
+  // `version` changes on every game mutation (move / undo / new game).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const notation = useMemo(() => historyToChinese(history), [version]);
 
   const aiColor = config.mode === 'pve' ? opponent(config.humanColor) : null;
   const humanToMove = aiColor === null || turn !== aiColor;
@@ -99,7 +106,11 @@ export function useMatch(): Match {
   // Displayed state — live, or a reconstructed past position while reviewing.
   const reviewing = reviewPly !== null;
   const currentPly = reviewPly ?? history.length;
-  const displayPos: Position = reviewing ? reconstruct(history, reviewPly) : game.position;
+  const displayPos = useMemo<Position>(
+    () => (reviewPly !== null ? reconstruct(history, reviewPly) : game.position),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [version, reviewPly],
+  );
   const board = displayPos.board;
   const lastMove = currentPly > 0 ? history[currentPly - 1] : null;
   const displayInCheck = reviewing ? isInCheck(displayPos, displayPos.turn) : inCheck;
@@ -115,30 +126,33 @@ export function useMatch(): Match {
   function commitMove(move: Move): void {
     const isCapture = game.position.board[move.to] !== EMPTY;
     if (!game.move(move)) return;
-    if (soundOn) playSound(game.inCheck() ? 'check' : isCapture ? 'capture' : 'move');
+    if (soundOnRef.current) playSound(game.inCheck() ? 'check' : isCapture ? 'capture' : 'move');
     setSelected(null);
     bump();
   }
 
-  // Drive the AI on its turn (never while reviewing history).
+  // Drive the AI on its turn (never while reviewing history). A monotonic token
+  // supersedes stale resolutions, so changing difficulty / undoing / starting a
+  // new game mid-think can neither apply a stale move nor strand `thinking`.
   useEffect(() => {
-    if (reviewPly !== null) return;
-    if (aiColor === null || finished || turn !== aiColor || aiBusyRef.current) return;
-    aiBusyRef.current = true;
+    const aiShouldMove = reviewPly === null && aiColor !== null && !finished && turn === aiColor;
+    if (!aiShouldMove) {
+      setThinking(false);
+      return;
+    }
+    const token = (aiTokenRef.current += 1);
     setThinking(true);
     const fen = game.fen();
-    let cancelled = false;
     void requestMove(fen, config.difficulty).then((move) => {
-      aiBusyRef.current = false;
+      if (aiTokenRef.current !== token) return; // superseded
       setThinking(false);
-      if (cancelled) return;
       if (move && game.fen() === fen) commitMove(move);
     });
     return () => {
-      cancelled = true;
+      aiTokenRef.current += 1; // invalidate this request
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history.length, reviewPly, aiColor, finished, turn, config.difficulty]);
+  }, [version, reviewPly, aiColor, finished, turn, config.difficulty]);
 
   function onPointClick(index: number): void {
     if (reviewing || finished || thinking || !humanToMove) return;
@@ -153,7 +167,7 @@ export function useMatch(): Match {
 
   function newGame(next?: Partial<MatchConfig>): void {
     gameRef.current = new Game();
-    aiBusyRef.current = false;
+    aiTokenRef.current += 1; // invalidate any in-flight AI request
     if (next) setConfig((c) => ({ ...c, ...next }));
     setSelected(null);
     setThinking(false);
