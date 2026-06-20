@@ -25,7 +25,7 @@ packages/
   ai/        # ✅ Alpha-beta search + evaluation (depends on engine)
   shared/    # ⏳ Network protocol types, notation
 apps/
-  web/       # ✅ Next.js front-end — local PVP + PVE (AI in a Web Worker)
+  web/       # ✅ Next.js front-end — local PVP + PVE, animations, sound, replay
   server/    # ⏳ Serverless API routes for online play
 ```
 
@@ -47,7 +47,7 @@ pnpm format         # format with Prettier
 | 2     | Local PVP UI (board rendering + interaction)             | ✅     |
 | 3     | PVE AI (evaluation + search + Web Worker + difficulties) | ✅     |
 | 4     | Online PVP (rooms, matchmaking, sync, reconnect)         | ⏳     |
-| 5     | Polish (animations, sound, themes, replay, mobile)       | ⏳     |
+| 5     | Polish (animations, sound, replay, notation, mobile)     | ✅     |
 | 6     | Deploy to Vercel                                         | ⏳     |
 
 ## Engine correctness

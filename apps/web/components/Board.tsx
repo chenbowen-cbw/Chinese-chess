@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactElement } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import { Color, EMPTY, fileOf, type Move, pieceColor, pieceType, rankOf } from '@xiangqi/engine';
 import { BOARD_H, BOARD_W, CELL, px, py } from '@/lib/geometry';
 import { pieceLabel } from '@/lib/labels';
@@ -12,6 +12,8 @@ interface BoardProps {
   targets: number[];
   lastMove: Move | null;
   checkSquare: number;
+  /** Counter that changes once per ply; drives the slide animation. */
+  ply: number;
   disabled?: boolean;
   onPointClick: (index: number) => void;
 }
@@ -22,6 +24,7 @@ export function Board({
   targets,
   lastMove,
   checkSquare,
+  ply,
   disabled = false,
   onPointClick,
 }: BoardProps): ReactElement {
@@ -37,8 +40,18 @@ export function Board({
     const isSelected = selected === i;
     const isLast = lastMove !== null && (lastMove.from === i || lastMove.to === i);
     const isCheck = checkSquare === i;
+    const isMovedPiece = lastMove !== null && lastMove.to === i && piece !== EMPTY;
 
     const pieceClass = piece === EMPTY ? '' : pieceColor(piece) === Color.Red ? 'red' : 'black';
+
+    // The moved piece slides in from where it came; remount per ply so the
+    // animation runs exactly once per move.
+    let slideStyle: CSSProperties | undefined;
+    if (isMovedPiece && lastMove) {
+      const dx = px(fileOf(lastMove.from)) - px(file);
+      const dy = py(rankOf(lastMove.from)) - py(rank);
+      slideStyle = { ['--dx']: `${dx}px`, ['--dy']: `${dy}px` } as CSSProperties;
+    }
 
     points.push(
       <button
@@ -54,7 +67,11 @@ export function Board({
         {isSelected && <span className="mark selected" />}
         {piece !== EMPTY ? (
           <span
-            className={`piece ${pieceClass}${isCheck ? ' check' : ''}${isTarget ? ' capture' : ''}`}
+            key={isMovedPiece ? `pc-${ply}` : 'pc'}
+            className={`piece ${pieceClass}${isCheck ? ' check' : ''}${isTarget ? ' capture' : ''}${
+              isMovedPiece ? ' sliding' : ''
+            }`}
+            style={slideStyle}
           >
             {pieceLabel(pieceColor(piece), pieceType(piece))}
           </span>

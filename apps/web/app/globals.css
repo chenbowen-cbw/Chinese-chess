@@ -273,3 +273,105 @@ body {
 .point:disabled {
   cursor: default;
 }
+
+/* --- Animation ----------------------------------------------------------- */
+
+@keyframes slide-in {
+  from {
+    transform: translate(var(--dx, 0), var(--dy, 0));
+  }
+  to {
+    transform: translate(0, 0);
+  }
+}
+
+.piece.sliding {
+  animation: slide-in 0.17s ease-out;
+}
+
+/* --- Responsive board frame --------------------------------------------- */
+
+.board-frame {
+  flex: 1 1 280px;
+  max-width: 516px;
+  min-width: 0;
+}
+
+/* --- Panel head + icon button ------------------------------------------- */
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.icon-btn {
+  padding: 4px 8px;
+  font-size: 18px;
+  line-height: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  border-color: #e0cfa8;
+  background: #faf2dd;
+}
+
+/* --- Replay controls ----------------------------------------------------- */
+
+.replay {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.replay button {
+  flex: 1;
+  padding: 7px 0;
+  font-size: 14px;
+  color: #6a5a32;
+  background: #faf2dd;
+  border: 1px solid #caa86a;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.replay button:hover:not(:disabled) {
+  background: #efd9a3;
+}
+
+.replay button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* --- Move list (traditional notation pairs) ----------------------------- */
+
+.history li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px;
+}
+
+.history .mv {
+  padding: 2px 6px;
+  font-size: 13px;
+  color: #3a2f18;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.history .mv:hover {
+  background: #efd9a3;
+}
+
+.history .mv.active {
+  color: #fff;
+  background: #b3261e;
+}

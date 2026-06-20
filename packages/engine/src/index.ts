@@ -14,3 +14,4 @@ export * from './rules';
 export * from './game';
 export * from './perft';
 export * from './notation';
+export * from './chineseNotation';

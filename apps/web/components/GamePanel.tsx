@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactElement } from 'react';
-import { Color, GameResult, type Move, moveToCoord } from '@xiangqi/engine';
+import { Color, GameResult } from '@xiangqi/engine';
 import type { Difficulty } from '@xiangqi/ai';
 import type { MatchConfig } from '@/lib/useMatch';
 
@@ -11,11 +11,20 @@ interface GamePanelProps {
   inCheck: boolean;
   result: GameResult;
   thinking: boolean;
-  history: readonly Move[];
+  soundOn: boolean;
+  notation: readonly string[];
+  reviewing: boolean;
+  currentPly: number;
   canUndo: boolean;
   onNewGame: (next?: Partial<MatchConfig>) => void;
   onUndo: () => void;
   onDifficultyChange: (difficulty: Difficulty) => void;
+  onToggleSound: () => void;
+  onGoToPly: (ply: number) => void;
+  onStepBackward: () => void;
+  onStepForward: () => void;
+  onToStart: () => void;
+  onToLive: () => void;
 }
 
 const DIFFICULTY_LABELS: Record<Difficulty, string> = {
@@ -24,36 +33,43 @@ const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   hard: '大师',
 };
 
-export function GamePanel({
-  config,
-  turn,
-  inCheck,
-  result,
-  thinking,
-  history,
-  canUndo,
-  onNewGame,
-  onUndo,
-  onDifficultyChange,
-}: GamePanelProps): ReactElement {
+export function GamePanel(props: GamePanelProps): ReactElement {
+  const { config, result, thinking, soundOn, notation, reviewing, currentPly } = props;
+  const total = notation.length;
   const over = result !== GameResult.Ongoing;
+
+  const rows = [];
+  for (let i = 0; i < total; i += 2) {
+    rows.push({ no: i / 2 + 1, red: i, black: i + 1 < total ? i + 1 : -1 });
+  }
 
   return (
     <aside className="panel">
-      <h1>中国象棋</h1>
+      <div className="panel-head">
+        <h1>中国象棋</h1>
+        <button
+          type="button"
+          className="icon-btn"
+          aria-label="音效开关"
+          title={soundOn ? '关闭音效' : '开启音效'}
+          onClick={props.onToggleSound}
+        >
+          {soundOn ? '🔊' : '🔈'}
+        </button>
+      </div>
 
       <div className="segmented" role="group" aria-label="对战模式">
         <button
           type="button"
           className={config.mode === 'pvp' ? 'active' : ''}
-          onClick={() => onNewGame({ mode: 'pvp' })}
+          onClick={() => props.onNewGame({ mode: 'pvp' })}
         >
           本地双人
         </button>
         <button
           type="button"
           className={config.mode === 'pve' ? 'active' : ''}
-          onClick={() => onNewGame({ mode: 'pve' })}
+          onClick={() => props.onNewGame({ mode: 'pve' })}
         >
           人机对战
         </button>
@@ -67,14 +83,14 @@ export function GamePanel({
               <button
                 type="button"
                 className={config.humanColor === Color.Red ? 'active' : ''}
-                onClick={() => onNewGame({ humanColor: Color.Red })}
+                onClick={() => props.onNewGame({ humanColor: Color.Red })}
               >
                 红先
               </button>
               <button
                 type="button"
                 className={config.humanColor === Color.Black ? 'active' : ''}
-                onClick={() => onNewGame({ humanColor: Color.Black })}
+                onClick={() => props.onNewGame({ humanColor: Color.Black })}
               >
                 黑后
               </button>
@@ -84,7 +100,7 @@ export function GamePanel({
             难度
             <select
               value={config.difficulty}
-              onChange={(e) => onDifficultyChange(e.target.value as Difficulty)}
+              onChange={(e) => props.onDifficultyChange(e.target.value as Difficulty)}
             >
               {(Object.keys(DIFFICULTY_LABELS) as Difficulty[]).map((d) => (
                 <option key={d} value={d}>
@@ -97,23 +113,77 @@ export function GamePanel({
       )}
 
       <div className={`status${over ? ' over' : ''}`}>
-        {thinking ? '电脑思考中…' : statusText(turn, inCheck, result)}
+        {reviewing
+          ? `复盘 ${currentPly} / ${total}`
+          : thinking
+            ? '电脑思考中…'
+            : statusText(props.turn, props.inCheck, result)}
       </div>
 
       <div className="controls">
-        <button type="button" onClick={() => onNewGame()}>
+        <button type="button" onClick={() => props.onNewGame()}>
           新局
         </button>
-        <button type="button" onClick={onUndo} disabled={!canUndo || thinking}>
+        <button type="button" onClick={props.onUndo} disabled={!props.canUndo || thinking}>
           悔棋
         </button>
       </div>
 
+      <div className="replay" role="group" aria-label="复盘">
+        <button
+          type="button"
+          onClick={props.onToStart}
+          disabled={currentPly === 0}
+          title="回到开局"
+        >
+          ⏮
+        </button>
+        <button
+          type="button"
+          onClick={props.onStepBackward}
+          disabled={currentPly === 0}
+          title="上一步"
+        >
+          ◀
+        </button>
+        <button
+          type="button"
+          onClick={props.onStepForward}
+          disabled={currentPly >= total}
+          title="下一步"
+        >
+          ▶
+        </button>
+        <button
+          type="button"
+          onClick={props.onToLive}
+          disabled={currentPly >= total}
+          title="回到最新"
+        >
+          ⏭
+        </button>
+      </div>
+
       <ol className="history">
-        {history.map((move, i) => (
-          <li key={i}>
-            <span className="num">{i + 1}.</span>
-            {moveToCoord(move)}
+        {rows.map((row) => (
+          <li key={row.no}>
+            <span className="num">{row.no}.</span>
+            <button
+              type="button"
+              className={`mv${currentPly === row.red + 1 ? ' active' : ''}`}
+              onClick={() => props.onGoToPly(row.red + 1)}
+            >
+              {notation[row.red]}
+            </button>
+            {row.black >= 0 && (
+              <button
+                type="button"
+                className={`mv${currentPly === row.black + 1 ? ' active' : ''}`}
+                onClick={() => props.onGoToPly(row.black + 1)}
+              >
+                {notation[row.black]}
+              </button>
+            )}
           </li>
         ))}
       </ol>
