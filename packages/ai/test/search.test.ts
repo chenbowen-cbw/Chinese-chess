@@ -53,6 +53,23 @@ describe('search', () => {
     expect(generateLegalMoves(pos).length).toBe(0); // Black is lost
   });
 
+  it('sees a quiet mate that lands at the search horizon (depth 1, quiescence)', () => {
+    // Red mates in one with a non-capturing rook move that checkmates Black.
+    // At depth 1 the mated position is a quiescence leaf, so this only works if
+    // quiescence detects "no legal reply" instead of returning material.
+    const board = emptyBoard();
+    board[sq(4, 9)] = makePiece(Color.Black, PieceType.General);
+    board[sq(3, 0)] = makePiece(Color.Red, PieceType.General);
+    board[sq(0, 7)] = makePiece(Color.Red, PieceType.Chariot); // swings up to a10 (0,9)
+    board[sq(1, 8)] = makePiece(Color.Red, PieceType.Chariot); // covers e9 (4,8) along rank 9->8
+    const pos: Position = { board, turn: Color.Red };
+
+    const { move, score } = search(pos, { maxDepth: 1, timeMs: 2000 });
+    expect(score).toBeGreaterThan(MATE - 1000);
+    makeMove(pos, move!);
+    expect(generateLegalMoves(pos).length).toBe(0);
+  });
+
   it('chooseMove returns a legal move at medium difficulty', () => {
     const pos = initialPosition();
     const { move } = chooseMove(pos, { difficulty: 'medium' });

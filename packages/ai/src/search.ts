@@ -8,6 +8,7 @@ import {
   clonePosition,
   EMPTY,
   generateLegalMoves,
+  isInCheck,
   makeMove,
   type Move,
   type Position,
@@ -134,23 +135,40 @@ function quiescence(pos: Position, alpha: number, beta: number, ctx: Ctx): numbe
     return 0;
   }
 
-  const standPat = evaluate(pos);
-  if (standPat >= beta) return beta;
-  if (standPat > alpha) alpha = standPat;
+  // Terminal detection at the horizon: no legal move is a loss for the side to
+  // move, whether checkmate or stalemate (困毙). (generateLegalMoves is needed
+  // anyway to find captures, so this is free.)
+  const moves = generateLegalMoves(pos);
+  if (moves.length === 0) return -MATE + ctx.ply;
 
-  const captures = generateLegalMoves(pos).filter((m) => pos.board[m.to] !== EMPTY);
-  orderMoves(pos, captures, null);
+  const inCheck = isInCheck(pos, pos.turn);
+  let best = -INF;
 
-  for (const move of captures) {
-    const undo = makeMove(pos, move);
-    const score = -quiescence(pos, -beta, -alpha, ctx);
-    unmakeMove(pos, undo);
-    if (ctx.stopped) return alpha;
-    if (score >= beta) return beta;
-    if (score > alpha) alpha = score;
+  if (!inCheck) {
+    // Standing pat is only an option when not in check.
+    const standPat = evaluate(pos);
+    if (standPat >= beta) return beta;
+    if (standPat > alpha) alpha = standPat;
+    best = standPat;
   }
 
-  return alpha;
+  // When in check, search every evasion; otherwise only captures.
+  const candidates = inCheck ? moves : moves.filter((m) => pos.board[m.to] !== EMPTY);
+  orderMoves(pos, candidates, null);
+
+  for (const move of candidates) {
+    const undo = makeMove(pos, move);
+    ctx.ply++;
+    const score = -quiescence(pos, -beta, -alpha, ctx);
+    ctx.ply--;
+    unmakeMove(pos, undo);
+    if (ctx.stopped) return best > -INF ? best : alpha;
+    if (score > best) best = score;
+    if (best > alpha) alpha = best;
+    if (alpha >= beta) break;
+  }
+
+  return best;
 }
 
 function orderMoves(pos: Position, moves: Move[], pv: Move | null): void {
